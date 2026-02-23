@@ -9,7 +9,7 @@
         <div id="block-flotila" class="block-site">
           <div class="row">
             <div class="col-md-12">
-            <h2>Fleets</h2>
+            <h2>Fleet</h2>
             </div>
           </div>
 
