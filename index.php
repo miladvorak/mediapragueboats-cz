@@ -2,7 +2,7 @@
 <?php require_once __DIR__ . "/includes/header.php"; ?>
 <header class="page-head">
           <div>
-            <h1>Fleet</h1>
+            <h1>Fleets</h1>
           </div>
         </header>
 
