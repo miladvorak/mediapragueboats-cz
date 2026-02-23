@@ -2730,6 +2730,7 @@
 
           <hr class="divider" />
 
+          <!--
           <section id="video-catering">
             <h4>Barmanky - 9:16</h4>
             <div class="video-container">
@@ -2747,7 +2748,9 @@
               </div>
             </div>
           </section>
+          -->
 
+          <!--
           <section id="video-catering">
             <h4>Barmanky - 16:9</h4>
             <div class="video-container">
@@ -2765,14 +2768,18 @@
               </div>
             </div>
           </section>
+          -->
 
+          <!--
           <div class="center">
             <a href="https://www.dropbox.com/scl/fo/ox7xkup2wc97jy8qqd0nn/AK0mxFTXghDdrkdHw05HttA?rlkey=gl74ww1sbvxnxnc0r0ai6v33b&dl=0"
               class="download-btn" download>Dropbox link</a>
           </div>
+          -->
 
           <hr class="divider" />
 
+          <!--
           <section id="video-catering">
             <h4>Kuchaři - 9:16</h4>
             <div class="video-container">
@@ -2831,6 +2838,7 @@
             <a href="https://www.dropbox.com/scl/fo/4effhcwuva00sbsssii3q/AIOUnkTX6mA2X0yVXSgwUBE?rlkey=3kv56n2eonhs4j4fypwcd8d9x&dl=0"
               class="download-btn" download>Dropbox link</a>
           </div>
+          -->
 
           <hr class="divider" />
         </div>
