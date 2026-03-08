@@ -16,7 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = isset($_POST['password']) ? $_POST['password'] : '';
     $return_to = isset($_POST['return_to']) ? $_POST['return_to'] : '/';
 
-    if (password_verify($password, AUTH_PASSWORD_HASH)) {
+    $is_plain_match = defined('AUTH_PASSWORD_PLAIN') && hash_equals(AUTH_PASSWORD_PLAIN, $password);
+    $is_hash_match = password_verify($password, AUTH_PASSWORD_HASH);
+
+    if ($is_plain_match || $is_hash_match) {
         session_regenerate_id(true);
         $_SESSION['authenticated'] = true;
         header('Location: ' . $return_to);
