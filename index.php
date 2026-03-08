@@ -1,4 +1,3 @@
-<?php require_once __DIR__ . "/includes/auth_guard.php"; ?>
 <?php require_once __DIR__ . "/includes/header.php"; ?>
 <header class="page-head">
           <div>

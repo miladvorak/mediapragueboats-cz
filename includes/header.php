@@ -378,9 +378,6 @@
           </details>
         </nav>
 
-        <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border);">
-          <a href="/logout.php" style="display: block; padding: 6px 12px; border-radius: 10px; font-size: 13px; color: var(--muted);">Odhlásit se</a>
-        </div>
       </aside>
 
       <main class="content">
