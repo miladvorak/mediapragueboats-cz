@@ -572,6 +572,12 @@ img { display: block; max-width: 100%; height: auto; }
   transform: scale(1.05);
 }
 
+.news-video-icon {
+  color: var(--gold);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
 .news-more {
   display: flex;
   align-items: center;
