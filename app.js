@@ -351,6 +351,25 @@
     }
   }
 
+  // ============================================================
+  // "See all news" link — scroll to full News section & activate sidebar
+  // ============================================================
+  var seeAllNewsLink = document.querySelector(".see-all-news");
+  if (seeAllNewsLink) {
+    seeAllNewsLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      var target = document.getElementById("block-news");
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth" });
+        // Activate the News sidebar link
+        var navLinks = document.querySelectorAll(".sidebar-nav .nav-link, .sidebar-nav .nav-group-link");
+        navLinks.forEach(function (l) { l.classList.remove("active"); });
+        var newsNavLink = document.querySelector('a[data-target="block-news"]');
+        if (newsNavLink) newsNavLink.classList.add("active");
+      }
+    });
+  }
+
   // Theme starts as dark (default), no persistence needed
 
   if (themeDarkBtn) {
