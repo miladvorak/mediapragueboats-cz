@@ -1240,18 +1240,14 @@ a.link-text:hover { color: var(--gold); }
   align-items: center;
   gap: var(--sp-3);
 }
-.auth-input-row {
-  display: flex;
-  gap: var(--sp-2);
-  width: 100%;
-}
 .auth-input {
-  flex: 1;
+  width: 220px;
   padding: var(--sp-3) var(--sp-4);
   font-family: var(--font-body);
   font-size: var(--text-base);
+  text-align: center;
   color: var(--text-primary);
-  background: var(--bg-secondary);
+  background: var(--bg-raised, #0f1d33);
   border: 1px solid var(--border);
   border-radius: 8px;
   outline: none;
@@ -1263,23 +1259,7 @@ a.link-text:hover { color: var(--gold); }
 .auth-input::placeholder {
   color: var(--text-muted);
 }
-.auth-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: var(--accent);
-  color: var(--bg-deep, #060e1a);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: opacity var(--duration-fast) ease;
-  flex-shrink: 0;
-}
-.auth-btn:hover {
-  opacity: 0.85;
-}
+
 .auth-error {
   font-size: var(--text-sm);
   color: #e74c3c;
