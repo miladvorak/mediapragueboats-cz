@@ -269,12 +269,7 @@ img { display: block; max-width: 100%; height: auto; }
   flex-shrink: 0;
 }
 
-.pplx-link {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  transition: color var(--duration-fast) ease;
-}
-.pplx-link:hover { color: var(--text-secondary); }
+
 
 /* --- Nav Groups --- */
 .nav-group {
