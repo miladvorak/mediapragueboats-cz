@@ -1214,10 +1214,13 @@ a.link-text:hover { color: var(--gold); }
   width: 100%;
 }
 .auth-logo {
+  display: block;
   width: 56px;
   height: 56px;
+  max-width: 56px;
+  max-height: 56px;
   color: var(--accent);
-  margin-bottom: var(--sp-4);
+  margin: 0 auto var(--sp-4);
 }
 .auth-title {
   font-family: var(--font-display);

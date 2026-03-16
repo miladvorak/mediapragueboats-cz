@@ -14,7 +14,7 @@
   <!-- Password Gate -->
   <div id="authGate" class="auth-gate">
     <div class="auth-box">
-      <svg class="auth-logo" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+      <svg class="auth-logo" width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M24 4 L4 18 L4 44 L44 44 L44 18 Z" />
         <path d="M16 44 L16 28 L32 28 L32 44" />
         <circle cx="24" cy="34" r="2" fill="currentColor" />
@@ -30,6 +30,20 @@
       <p id="authError" class="auth-error" data-cz="Nesprávné heslo" data-en="Incorrect password"></p>
     </div>
   </div>
+  <script>
+    /* Inline auth — runs before external app.js to prevent FOUC */
+    (function(){
+      var P="pragueboats",g=document.getElementById("authGate"),f=document.getElementById("authForm"),
+          i=document.getElementById("authPassword"),e=document.getElementById("authError");
+      if(sessionStorage.getItem("pb_auth")==="1"){g.classList.add("hidden")}
+      else{document.body.classList.add("locked")}
+      f.addEventListener("submit",function(ev){
+        ev.preventDefault();
+        if(i.value===P){sessionStorage.setItem("pb_auth","1");document.body.classList.remove("locked");g.classList.add("hidden")}
+        else{e.classList.add("visible");i.value="";i.focus();setTimeout(function(){e.classList.remove("visible")},2000)}
+      });
+    })();
+  </script>
 
   <!-- Mobile header -->
   <header class="mobile-header">
@@ -4173,6 +4187,6 @@
     <span data-cz="Odkaz zkopírován do schránky" data-en="Link copied to clipboard">Odkaz zkopírován do schránky</span>
   </div>
 
-  <script src="./app.js?v=4"></script>
+  <script src="./app.js?v=5"></script>
 </body>
 </html>
