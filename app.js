@@ -1,5 +1,36 @@
 /* Prague Boats Media Hub — Application Logic */
 
+/* --- Auth Gate --- */
+(function () {
+  var PASS = "pragueboats";
+  var gate = document.getElementById("authGate");
+  var form = document.getElementById("authForm");
+  var input = document.getElementById("authPassword");
+  var error = document.getElementById("authError");
+
+  if (sessionStorage.getItem("pb_auth") === "1") {
+    if (gate) gate.classList.add("hidden");
+  } else {
+    document.body.classList.add("locked");
+  }
+
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (input.value === PASS) {
+        sessionStorage.setItem("pb_auth", "1");
+        document.body.classList.remove("locked");
+        gate.classList.add("hidden");
+      } else {
+        error.classList.add("visible");
+        input.value = "";
+        input.focus();
+        setTimeout(function () { error.classList.remove("visible"); }, 2000);
+      }
+    });
+  }
+})();
+
 (function () {
   "use strict";
 

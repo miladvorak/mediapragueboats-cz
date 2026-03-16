@@ -11,6 +11,26 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+  <!-- Password Gate -->
+  <div id="authGate" class="auth-gate">
+    <div class="auth-box">
+      <svg class="auth-logo" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M24 4 L4 18 L4 44 L44 44 L44 18 Z" />
+        <path d="M16 44 L16 28 L32 28 L32 44" />
+        <circle cx="24" cy="34" r="2" fill="currentColor" />
+      </svg>
+      <h2 class="auth-title">Media Hub</h2>
+      <p class="auth-subtitle" data-cz="Zadejte heslo pro přístup" data-en="Enter password to continue">Zadejte heslo pro přístup</p>
+      <form id="authForm" class="auth-form" autocomplete="off">
+        <input type="password" id="authPassword" class="auth-input" placeholder="Heslo" autofocus autocomplete="off" />
+        <button type="submit" class="auth-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </form>
+      <p id="authError" class="auth-error" data-cz="Nesprávné heslo" data-en="Incorrect password"></p>
+    </div>
+  </div>
+
   <!-- Mobile header -->
   <header class="mobile-header">
     <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
@@ -4153,6 +4173,6 @@
     <span data-cz="Odkaz zkopírován do schránky" data-en="Link copied to clipboard">Odkaz zkopírován do schránky</span>
   </div>
 
-  <script src="./app.js?v=3"></script>
+  <script src="./app.js?v=4"></script>
 </body>
 </html>
