@@ -1199,7 +1199,7 @@ a.link-text:hover { color: var(--gold); }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-primary);
+  background: var(--bg-deep, #060e1a);
   transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 .auth-gate.hidden {
@@ -1264,7 +1264,7 @@ a.link-text:hover { color: var(--gold); }
   width: 44px;
   height: 44px;
   background: var(--accent);
-  color: var(--bg-primary);
+  color: var(--bg-deep, #060e1a);
   border: none;
   border-radius: 8px;
   cursor: pointer;
