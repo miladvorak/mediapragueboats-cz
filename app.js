@@ -358,14 +358,14 @@
   if (seeAllNewsLink) {
     seeAllNewsLink.addEventListener("click", function (e) {
       e.preventDefault();
-      var target = document.getElementById("block-news");
+      var target = document.getElementById("block-archive");
       if (target) {
         target.scrollIntoView({ behavior: "smooth" });
-        // Activate the News sidebar link
+        // Activate the Archive sidebar link
         var navLinks = document.querySelectorAll(".sidebar-nav .nav-link, .sidebar-nav .nav-group-link");
         navLinks.forEach(function (l) { l.classList.remove("active"); });
-        var newsNavLink = document.querySelector('a[data-target="block-news"]');
-        if (newsNavLink) newsNavLink.classList.add("active");
+        var archiveNavLink = document.querySelector('a[data-target="block-archive"]');
+        if (archiveNavLink) archiveNavLink.classList.add("active");
       }
     });
   }
