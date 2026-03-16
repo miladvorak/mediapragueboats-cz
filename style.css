@@ -1236,8 +1236,14 @@ a.link-text:hover { color: var(--gold); }
 }
 .auth-form {
   display: flex;
-  gap: var(--sp-2);
+  flex-direction: column;
   align-items: center;
+  gap: var(--sp-3);
+}
+.auth-input-row {
+  display: flex;
+  gap: var(--sp-2);
+  width: 100%;
 }
 .auth-input {
   flex: 1;
@@ -1287,4 +1293,43 @@ a.link-text:hover { color: var(--gold); }
 }
 body.locked {
   overflow: hidden;
+}
+
+/* --- Auth Remember Checkbox --- */
+.auth-remember {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  user-select: none;
+}
+.auth-remember input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg-raised, #0f1d33);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
+}
+.auth-remember input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.auth-remember input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--bg-deep, #060e1a);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }

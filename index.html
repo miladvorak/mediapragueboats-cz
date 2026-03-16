@@ -22,10 +22,16 @@
       <h2 class="auth-title">Media Hub</h2>
       <p class="auth-subtitle" data-cz="Zadejte heslo pro přístup" data-en="Enter password to continue">Zadejte heslo pro přístup</p>
       <form id="authForm" class="auth-form" autocomplete="off">
-        <input type="password" id="authPassword" class="auth-input" placeholder="Heslo" autofocus autocomplete="off" />
-        <button type="submit" class="auth-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+        <div class="auth-input-row">
+          <input type="password" id="authPassword" class="auth-input" placeholder="Heslo" autofocus autocomplete="off" />
+          <button type="submit" class="auth-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <label class="auth-remember">
+          <input type="checkbox" id="authRemember" />
+          <span data-cz="Zapamatovat" data-en="Remember me">Zapamatovat</span>
+        </label>
       </form>
       <p id="authError" class="auth-error" data-cz="Nesprávné heslo" data-en="Incorrect password"></p>
     </div>
@@ -34,13 +40,16 @@
     /* Inline auth — runs before external app.js to prevent FOUC */
     (function(){
       var P="pragueboats",g=document.getElementById("authGate"),f=document.getElementById("authForm"),
-          i=document.getElementById("authPassword"),e=document.getElementById("authError");
-      if(sessionStorage.getItem("pb_auth")==="1"){g.classList.add("hidden")}
+          i=document.getElementById("authPassword"),e=document.getElementById("authError"),
+          r=document.getElementById("authRemember");
+      if(localStorage.getItem("pb_auth")==="1"||sessionStorage.getItem("pb_auth")==="1"){g.classList.add("hidden")}
       else{document.body.classList.add("locked")}
       f.addEventListener("submit",function(ev){
         ev.preventDefault();
-        if(i.value===P){sessionStorage.setItem("pb_auth","1");document.body.classList.remove("locked");g.classList.add("hidden")}
-        else{e.classList.add("visible");i.value="";i.focus();setTimeout(function(){e.classList.remove("visible")},2000)}
+        if(i.value===P){
+          if(r&&r.checked){localStorage.setItem("pb_auth","1")}else{sessionStorage.setItem("pb_auth","1")}
+          document.body.classList.remove("locked");g.classList.add("hidden")
+        }else{e.classList.add("visible");i.value="";i.focus();setTimeout(function(){e.classList.remove("visible")},2000)}
       });
     })();
   </script>
