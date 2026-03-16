@@ -383,4 +383,63 @@
       setTheme("light");
     });
   }
+
+  // ============================================================
+  // Language Toggle (CZ / EN)
+  // ============================================================
+  var langCzBtn = document.getElementById("langCz");
+  var langEnBtn = document.getElementById("langEn");
+  var currentLang = "cz"; // default
+
+  function setLang(lang) {
+    currentLang = lang;
+    // Update html lang attribute
+    document.documentElement.lang = lang === "cz" ? "cs" : "en";
+
+    // Toggle button states
+    if (langCzBtn) langCzBtn.classList.toggle("active", lang === "cz");
+    if (langEnBtn) langEnBtn.classList.toggle("active", lang === "en");
+
+    // Update all elements with data-cz / data-en attributes
+    var elements = document.querySelectorAll("[data-cz][data-en]");
+    elements.forEach(function (el) {
+      var text = el.getAttribute("data-" + lang);
+      if (text !== null) {
+        // Check if element has child nodes that are not just text
+        if (el.children.length === 0) {
+          el.textContent = text;
+        } else {
+          // For elements with mixed content, update the text content
+          el.innerHTML = text;
+        }
+      }
+    });
+
+    // Update aria-labels and titles on theme buttons
+    if (lang === "cz") {
+      if (themeDarkBtn) { themeDarkBtn.setAttribute("aria-label", "Tmavý režim"); themeDarkBtn.setAttribute("title", "Tmavý režim"); }
+      if (themeLightBtn) { themeLightBtn.setAttribute("aria-label", "Světlý režim"); themeLightBtn.setAttribute("title", "Světlý režim"); }
+    } else {
+      if (themeDarkBtn) { themeDarkBtn.setAttribute("aria-label", "Dark mode"); themeDarkBtn.setAttribute("title", "Dark mode"); }
+      if (themeLightBtn) { themeLightBtn.setAttribute("aria-label", "Light mode"); themeLightBtn.setAttribute("title", "Light mode"); }
+    }
+
+    // Update "View all" tooltips on news-more elements
+    var moreEls = document.querySelectorAll(".news-more");
+    moreEls.forEach(function (el) {
+      el.setAttribute("title", lang === "cz" ? "Zobrazit vše" : "View all");
+    });
+  }
+
+  if (langCzBtn) {
+    langCzBtn.addEventListener("click", function () {
+      setLang("cz");
+    });
+  }
+
+  if (langEnBtn) {
+    langEnBtn.addEventListener("click", function () {
+      setLang("en");
+    });
+  }
 })();
