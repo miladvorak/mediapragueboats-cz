@@ -36,14 +36,60 @@
     (function(){
       var P="pragueboats",g=document.getElementById("authGate"),f=document.getElementById("authForm"),
           i=document.getElementById("authPassword"),e=document.getElementById("authError"),
-          r=document.getElementById("authRemember");
-      if(localStorage.getItem("pb_auth")==="1"||sessionStorage.getItem("pb_auth")==="1"){g.classList.add("hidden")}
-      else{document.body.classList.add("locked")}
+          r=document.getElementById("authRemember"),AUTH_KEY="pb_auth",REMEMBER_KEY="pb_auth_remember";
+
+      function getStoredAuth(storage){
+        try { return storage.getItem(AUTH_KEY)==="1"; }
+        catch(_) { return false; }
+      }
+
+      function setStoredAuth(storage, value){
+        try {
+          if(value){ storage.setItem(AUTH_KEY,"1"); }
+          else{ storage.removeItem(AUTH_KEY); }
+        } catch(_) {}
+      }
+
+      function setStoredRemember(value){
+        try {
+          if(value){ localStorage.setItem(REMEMBER_KEY,"1"); }
+          else{ localStorage.removeItem(REMEMBER_KEY); }
+        } catch(_) {}
+      }
+
+      function getStoredRemember(){
+        try { return localStorage.getItem(REMEMBER_KEY)==="1"; }
+        catch(_) { return false; }
+      }
+
+      if(r){ r.checked = getStoredRemember(); }
+
+      if(getStoredAuth(localStorage)||getStoredAuth(sessionStorage)){
+        document.body.classList.remove("locked");
+        g.classList.add("hidden");
+      } else {
+        document.body.classList.add("locked");
+      }
+
+      if(r){
+        r.addEventListener("change", function(){
+          setStoredRemember(!!r.checked);
+        });
+      }
+
       f.addEventListener("submit",function(ev){
         ev.preventDefault();
         if(i.value===P){
-          if(r&&r.checked){localStorage.setItem("pb_auth","1")}else{sessionStorage.setItem("pb_auth","1")}
-          document.body.classList.remove("locked");g.classList.add("hidden")
+          var remember = !!(r&&r.checked);
+          setStoredRemember(remember);
+          if(remember){
+            setStoredAuth(localStorage,true);
+            setStoredAuth(sessionStorage,false);
+          }else{
+            setStoredAuth(sessionStorage,true);
+            setStoredAuth(localStorage,false);
+          }
+          document.body.classList.remove("locked");g.classList.add("hidden");
         }else{e.classList.add("visible");i.value="";i.focus();setTimeout(function(){e.classList.remove("visible")},2000)}
       });
     })();
