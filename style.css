@@ -660,8 +660,8 @@ img { display: block; max-width: 100%; height: auto; }
   flex-shrink: 0;
 }
 
-/* Preview mode: show only first 3 news items */
-.news-list--preview .news-item:nth-child(n+4) {
+/* Preview mode: show only first 5 news items */
+.news-list--preview .news-item:nth-child(n+6) {
   display: none;
 }
 
