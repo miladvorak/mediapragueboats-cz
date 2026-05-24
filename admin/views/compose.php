@@ -25,7 +25,7 @@
     <h2>2 · Ukázkové fotky</h2>
     <div class="dropzone" id="dropzone">
       <p style="margin:0;"><strong>Přetáhni fotky sem</strong> nebo klikni pro výběr</p>
-      <p style="margin:6px 0 0;font-size:13px;">Systém je sám zmenší (max. 1280 px) a přiloží do mailu.</p>
+      <p style="margin:6px 0 0;font-size:13px;">Systém je sám zmenší (každá do ~200 kB) a přiloží do mailu.</p>
       <input type="file" id="fileInput" accept="image/*" multiple hidden>
     </div>
     <div class="thumbs" id="thumbs"></div>

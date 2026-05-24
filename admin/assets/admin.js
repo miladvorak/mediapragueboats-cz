@@ -35,36 +35,63 @@
   }
   function hideMsg(el) { el.className = 'msg'; }
 
-  /* Downscale an image File in the browser to keep uploads small. Falls back
-     to the original file if anything goes wrong. */
-  function downscaleImage(file, maxEdge, quality) {
+  /* Downscale + compress an image File in the browser so each upload stays
+     under maxBytes. Lowers JPEG quality first, then dimensions, until it fits.
+     Falls back to the smallest result (or the original) if needed. */
+  function downscaleImage(file, maxBytes) {
+    maxBytes = maxBytes || 200 * 1024;
     return new Promise(function (resolve) {
       if (!file.type || file.type.indexOf('image/') !== 0 || !window.HTMLCanvasElement) {
         resolve(file); return;
       }
       var url = URL.createObjectURL(file);
       var img = new Image();
+      img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };
       img.onload = function () {
         URL.revokeObjectURL(url);
         var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
         if (!w || !h) { resolve(file); return; }
-        var scale = Math.min(1, maxEdge / Math.max(w, h));
-        var nw = Math.max(1, Math.round(w * scale)), nh = Math.max(1, Math.round(h * scale));
-        try {
+
+        var name = (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg';
+        var edges = [1600, 1280, 1024, 800, 640];
+        var qualities = [0.82, 0.72, 0.62, 0.52, 0.42, 0.34];
+        var best = null;
+
+        function encode(canvas, q) {
+          return new Promise(function (res) { canvas.toBlob(res, 'image/jpeg', q); });
+        }
+
+        function tryEdge(ei) {
+          if (ei >= edges.length) { return finish(); }
+          var scale = Math.min(1, edges[ei] / Math.max(w, h));
+          var nw = Math.max(1, Math.round(w * scale)), nh = Math.max(1, Math.round(h * scale));
           var canvas = document.createElement('canvas');
           canvas.width = nw; canvas.height = nh;
           var ctx = canvas.getContext('2d');
           ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, nw, nh);
           ctx.drawImage(img, 0, 0, nw, nh);
-          canvas.toBlob(function (blob) {
-            if (!blob) { resolve(file); return; }
-            var name = (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg';
-            try { resolve(new File([blob], name, { type: 'image/jpeg' })); }
-            catch (e) { blob.name = name; resolve(blob); }
-          }, 'image/jpeg', quality);
-        } catch (e) { resolve(file); }
+
+          var qi = 0;
+          function tryQuality() {
+            if (qi >= qualities.length) { return tryEdge(ei + 1); }
+            encode(canvas, qualities[qi]).then(function (blob) {
+              if (!blob) { qi++; return tryQuality(); }
+              if (!best || blob.size < best.size) { best = blob; }
+              if (blob.size <= maxBytes) { return finish(); }
+              qi++; tryQuality();
+            });
+          }
+          tryQuality();
+        }
+
+        function finish() {
+          if (!best) { resolve(file); return; }
+          try { resolve(new File([best], name, { type: 'image/jpeg' })); }
+          catch (e) { best.name = name; resolve(best); }
+        }
+
+        try { tryEdge(0); } catch (e) { resolve(file); }
       };
-      img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };
       img.src = url;
     });
   }
@@ -177,7 +204,7 @@
       var imgs = Array.prototype.filter.call(list, function (f) { return f.type && f.type.indexOf('image/') === 0; });
       if (!imgs.length) return;
       setBusy(true);
-      Promise.all(imgs.map(function (f) { return downscaleImage(f, 1600, 0.82); }))
+      Promise.all(imgs.map(function (f) { return downscaleImage(f, 200 * 1024); }))
         .then(function (small) {
           small.forEach(function (f) { files.push(f); });
           renderThumbs();
