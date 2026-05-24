@@ -13,7 +13,13 @@
     <h2>1 · Loď a složka</h2>
     <label class="field">
       <span>Loď / složka</span>
-      <select id="boatSelect" name="folder"></select>
+      <div class="combo" id="boatCombo">
+        <input type="text" id="boatSearch" class="combo-input" placeholder="Začni psát loď nebo složku…"
+               autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list">
+        <span class="combo-caret" aria-hidden="true">▾</span>
+        <div class="combo-list" id="boatList" role="listbox"></div>
+      </div>
+      <select id="boatSelect" name="folder" hidden tabindex="-1" aria-hidden="true"></select>
     </label>
     <label class="field">
       <span>Odkaz na konkrétní Dropbox <span class="hint">(doplní se podle výběru, lze upravit)</span></span>

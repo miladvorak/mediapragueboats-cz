@@ -123,19 +123,26 @@
     var subjectDirty = false, bodyDirty = false;
     var settings = PB.settings || {};
 
-    /* Build the boat/folder dropdown from parsed site data. */
+    /* Build the hidden <select> (data store) and the searchable item list. */
+    var items = []; // {value, boat, folder, tag, url, search}
     (PB.boats || []).forEach(function (boat) {
       var group = document.createElement('optgroup');
       group.label = boat.boat;
       boat.folders.forEach(function (folder) {
+        var multi = folder.links.length > 1;
         folder.links.forEach(function (link, li) {
+          var value = boat.id + '|' + folder.anchor + '|' + li;
           var opt = document.createElement('option');
-          var multi = folder.links.length > 1;
           opt.textContent = folder.title + (multi ? ' · ' + link.label : '');
-          opt.value = boat.id + '|' + folder.anchor + '|' + li;
+          opt.value = value;
           opt.dataset.boat = boat.boat;
           opt.dataset.url = link.url;
           group.appendChild(opt);
+          items.push({
+            value: value, boat: boat.boat, folder: folder.title,
+            tag: multi ? link.label : '', url: link.url,
+            search: norm(boat.boat + ' ' + folder.title + ' ' + link.label)
+          });
         });
       });
       boatSelect.appendChild(group);
@@ -159,10 +166,101 @@
       if (!bodyDirty) bodyEl.value = fill(settings.body_template);
     }
 
-    boatSelect.addEventListener('change', applyTemplate);
     subjectEl.addEventListener('input', function () { subjectDirty = true; });
     bodyEl.addEventListener('input', function () { bodyDirty = true; });
-    if (boatSelect.options.length) applyTemplate();
+
+    /* ---- Searchable combobox ---- */
+    var combo = $('#boatCombo');
+    var searchInput = $('#boatSearch');
+    var list = $('#boatList');
+    var visible = [];      // items currently shown
+    var rowEls = [];       // their row elements
+    var activeIdx = -1;
+
+    function norm(s) { return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
+    function escHtml(s) { return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+    function highlight(text, q) {
+      var safe = escHtml(text);
+      if (!q) return safe;
+      try { return safe.replace(new RegExp('(' + escRe(q) + ')', 'gi'), '<mark>$1</mark>'); }
+      catch (e) { return safe; }
+    }
+    function displayText(it) { return it.boat + ' · ' + it.folder + (it.tag ? ' · ' + it.tag : ''); }
+
+    function renderList(query) {
+      var raw = (query || '').trim();
+      var nq = norm(raw);
+      list.innerHTML = '';
+      visible = items.filter(function (it) { return nq === '' || it.search.indexOf(nq) !== -1; });
+      rowEls = [];
+      if (!visible.length) {
+        list.innerHTML = '<div class="combo-empty">Nic nenalezeno</div>';
+        activeIdx = -1;
+        return;
+      }
+      var lastBoat = null;
+      visible.forEach(function (it, idx) {
+        if (it.boat !== lastBoat) {
+          var g = document.createElement('div');
+          g.className = 'combo-group';
+          g.textContent = it.boat;
+          list.appendChild(g);
+          lastBoat = it.boat;
+        }
+        var row = document.createElement('div');
+        row.className = 'combo-item';
+        row.setAttribute('role', 'option');
+        row.innerHTML = '<span class="ci-folder">' + highlight(it.folder, raw) + '</span>'
+          + (it.tag ? '<span class="ci-tag">' + highlight(it.tag, raw) + '</span>' : '');
+        row.addEventListener('mousedown', function (e) { e.preventDefault(); choose(it); });
+        row.addEventListener('mouseenter', function () { activeIdx = idx; paintActive(); });
+        list.appendChild(row);
+        rowEls.push(row);
+      });
+      if (activeIdx >= visible.length || activeIdx < 0) activeIdx = 0;
+      paintActive();
+    }
+
+    function paintActive() {
+      rowEls.forEach(function (el, i) { el.classList.toggle('active', i === activeIdx); });
+      if (rowEls[activeIdx]) rowEls[activeIdx].scrollIntoView({ block: 'nearest' });
+    }
+    function openList() { list.classList.add('open'); searchInput.setAttribute('aria-expanded', 'true'); }
+    function closeList() { list.classList.remove('open'); searchInput.setAttribute('aria-expanded', 'false'); }
+
+    function choose(it) {
+      boatSelect.value = it.value;
+      searchInput.value = displayText(it);
+      closeList();
+      applyTemplate();
+    }
+
+    searchInput.addEventListener('focus', function () { searchInput.select(); renderList(''); openList(); });
+    searchInput.addEventListener('input', function () { activeIdx = 0; renderList(searchInput.value); openList(); });
+    searchInput.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); if (!list.classList.contains('open')) { renderList(''); openList(); } activeIdx = Math.min(activeIdx + 1, visible.length - 1); paintActive(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(0, activeIdx - 1); paintActive(); }
+      else if (e.key === 'Enter') { if (list.classList.contains('open') && visible[activeIdx]) { e.preventDefault(); choose(visible[activeIdx]); } }
+      else if (e.key === 'Escape') { closeList(); searchInput.blur(); }
+    });
+    document.addEventListener('click', function (e) {
+      if (!combo.contains(e.target)) {
+        closeList();
+        // Restore the display text if the user typed but didn't pick.
+        var opt = currentOption();
+        if (opt) {
+          var it = items.filter(function (x) { return x.value === opt.value; })[0];
+          if (it) searchInput.value = displayText(it);
+        }
+      }
+    });
+
+    if (items.length) {
+      boatSelect.selectedIndex = 0;
+      searchInput.value = displayText(items[0]);
+      applyTemplate();
+    }
 
     /* Recipients checkboxes */
     var checks = $('#recipientChecks');
