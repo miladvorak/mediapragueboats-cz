@@ -1,2 +1,6 @@
 config/auth.php
+config/settings.php
+config/recipients.php
+admin/tmp/
 README.md
+.DS_Store
