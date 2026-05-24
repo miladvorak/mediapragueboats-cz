@@ -36,6 +36,9 @@ function pb_resend_send(array $msg): array
     if (!empty($msg['reply_to'])) {
         $payload['reply_to'] = $msg['reply_to'];
     }
+    if (!empty($msg['bcc'])) {
+        $payload['bcc'] = $msg['bcc'];
+    }
     if (!empty($msg['attachments'])) {
         $payload['attachments'] = $msg['attachments'];
     }

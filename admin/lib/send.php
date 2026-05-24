@@ -74,10 +74,17 @@ function pb_handle_send(): void
     $fromName = $settings['from_name'] !== '' ? $settings['from_name'] : 'Prague Boats Media';
     $from = sprintf('%s <%s>', $fromName, $settings['from_email']);
 
+    // Blind copy (comma-separated, validated).
+    $bcc = array_values(array_filter(
+        array_map('trim', explode(',', (string) ($settings['bcc'] ?? ''))),
+        static fn($x) => filter_var($x, FILTER_VALIDATE_EMAIL)
+    ));
+
     $result = pb_resend_send([
         'api_key'     => $settings['resend_api_key'],
         'from'        => $from,
         'to'          => $toEmails,
+        'bcc'         => $bcc,
         'subject'     => $subject,
         'html'        => $html,
         'reply_to'    => $settings['reply_to'] ?: '',

@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== '') {
 
         case 'save_settings':
             $settings = pb_settings();
-            foreach (['resend_api_key','from_email','from_name','reply_to','media_url','site_base_url','subject_template','body_template'] as $k) {
+            foreach (['resend_api_key','from_email','from_name','reply_to','bcc','media_url','site_base_url','subject_template','body_template'] as $k) {
                 if (array_key_exists($k, $_POST)) {
                     $settings[$k] = trim((string) $_POST[$k]);
                 }

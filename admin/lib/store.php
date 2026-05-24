@@ -50,6 +50,7 @@ function pb_settings(): array
         'from_email'       => '',
         'from_name'        => 'Prague Boats Media',
         'reply_to'         => '',
+        'bcc'              => 'mia@miladvorak.com',
         'media_url'        => '',
         'site_base_url'    => '',
         'subject_template' => 'Nové fotky – {boat}',

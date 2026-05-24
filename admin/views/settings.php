@@ -23,6 +23,10 @@
       <span>Reply-To <span class="hint">(nepovinné)</span></span>
       <input type="email" name="reply_to" value="<?= e($settings['reply_to']) ?>">
     </label>
+    <label class="field">
+      <span>Skrytá kopie (BCC) <span class="hint">(na každý odeslaný mail; více adres odděl čárkou)</span></span>
+      <input type="text" name="bcc" value="<?= e($settings['bcc']) ?>" placeholder="mia@miladvorak.com">
+    </label>
   </div>
 
   <div class="card">
