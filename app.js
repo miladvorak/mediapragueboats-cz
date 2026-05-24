@@ -214,8 +214,9 @@
   var navGroupLinks = document.querySelectorAll(".nav-group-link");
   navGroupLinks.forEach(function (link) {
     link.addEventListener("click", function (e) {
-      e.preventDefault();
       var targetId = link.getAttribute("data-target");
+      if (!targetId) return; // external link (e.g. ECO -> Dropbox) — let it navigate
+      e.preventDefault();
       var targetEl = document.getElementById(targetId);
       if (targetEl) {
         targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
