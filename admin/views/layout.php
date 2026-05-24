@@ -33,7 +33,7 @@ $bootData = [
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title><?= e($titles[$page] ?? 'Admin') ?> — Prague Boats</title>
-  <link rel="stylesheet" href="assets/admin.css?v=1">
+  <link rel="stylesheet" href="<?= e(asset('admin.css')) ?>">
 </head>
 <body>
   <header class="topbar">
@@ -55,6 +55,6 @@ $bootData = [
   <script>
     window.PB = <?= json_encode($bootData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
   </script>
-  <script src="assets/admin.js?v=1"></script>
+  <script src="<?= e(asset('admin.js')) ?>"></script>
 </body>
 </html>

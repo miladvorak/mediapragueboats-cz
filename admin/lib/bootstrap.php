@@ -97,3 +97,11 @@ function redirect(string $to): void
     header('Location: ' . $to);
     exit;
 }
+
+/** Asset URL with a cache-busting version derived from the file's mtime. */
+function asset(string $relPath): string
+{
+    $full = dirname(__DIR__) . '/assets/' . $relPath; // admin/assets/...
+    $v = @filemtime($full) ?: time();
+    return 'assets/' . $relPath . '?v=' . $v;
+}

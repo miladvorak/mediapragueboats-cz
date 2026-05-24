@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>Přihlášení — Prague Boats Admin</title>
-  <link rel="stylesheet" href="assets/admin.css?v=1">
+  <link rel="stylesheet" href="<?= e(asset('admin.css')) ?>">
 </head>
 <body>
   <div class="auth-wrap">
