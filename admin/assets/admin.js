@@ -15,13 +15,59 @@
       else { fd.append(k, v); }
     });
     (files || []).forEach(function (f) { fd.append('photos[]', f, f.name); });
-    return fetch('index.php', { method: 'POST', body: fd }).then(function (r) { return r.json(); });
+    return fetch('index.php', { method: 'POST', body: fd }).then(function (r) {
+      return r.text().then(function (text) {
+        try { return JSON.parse(text); }
+        catch (e) {
+          // Salvage JSON if a PHP warning/notice leaked in front of it.
+          var i = text.indexOf('{');
+          if (i > 0) { try { return JSON.parse(text.slice(i)); } catch (e2) {} }
+          var snippet = (text || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 240);
+          throw new Error('Server vrátil neočekávanou odpověď (HTTP ' + r.status + ').'
+            + (snippet ? ' ' + snippet : ' Prázdná odpověď — zkontroluj limity uploadu a PHP rozšíření (curl, gd).'));
+        }
+      });
+    });
   }
   function showMsg(el, text, ok) {
     el.textContent = text;
     el.className = 'msg show ' + (ok ? 'ok' : 'err');
   }
   function hideMsg(el) { el.className = 'msg'; }
+
+  /* Downscale an image File in the browser to keep uploads small. Falls back
+     to the original file if anything goes wrong. */
+  function downscaleImage(file, maxEdge, quality) {
+    return new Promise(function (resolve) {
+      if (!file.type || file.type.indexOf('image/') !== 0 || !window.HTMLCanvasElement) {
+        resolve(file); return;
+      }
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+        if (!w || !h) { resolve(file); return; }
+        var scale = Math.min(1, maxEdge / Math.max(w, h));
+        var nw = Math.max(1, Math.round(w * scale)), nh = Math.max(1, Math.round(h * scale));
+        try {
+          var canvas = document.createElement('canvas');
+          canvas.width = nw; canvas.height = nh;
+          var ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, nw, nh);
+          ctx.drawImage(img, 0, 0, nw, nh);
+          canvas.toBlob(function (blob) {
+            if (!blob) { resolve(file); return; }
+            var name = (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg';
+            try { resolve(new File([blob], name, { type: 'image/jpeg' })); }
+            catch (e) { blob.name = name; resolve(blob); }
+          }, 'image/jpeg', quality);
+        } catch (e) { resolve(file); }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };
+      img.src = url;
+    });
+  }
 
   /* ---- logout (present on every authed page) ---- */
   var logoutBtn = $('#logoutBtn');
@@ -121,11 +167,22 @@
         thumbsEl.appendChild(div);
       });
     }
+    var processing = 0;
+    function setBusy(on) {
+      processing += on ? 1 : -1;
+      dropzone.style.opacity = processing > 0 ? '.6' : '';
+      sendBtn.disabled = processing > 0;
+    }
     function addFiles(list) {
-      Array.prototype.forEach.call(list, function (f) {
-        if (f.type.indexOf('image/') === 0) files.push(f);
-      });
-      renderThumbs();
+      var imgs = Array.prototype.filter.call(list, function (f) { return f.type && f.type.indexOf('image/') === 0; });
+      if (!imgs.length) return;
+      setBusy(true);
+      Promise.all(imgs.map(function (f) { return downscaleImage(f, 1600, 0.82); }))
+        .then(function (small) {
+          small.forEach(function (f) { files.push(f); });
+          renderThumbs();
+        })
+        .finally(function () { setBusy(false); });
     }
     dropzone.addEventListener('click', function () { fileInput.click(); });
     fileInput.addEventListener('change', function () { addFiles(fileInput.files); fileInput.value = ''; });
@@ -168,9 +225,9 @@
         } else {
           showMsg(sendMsg, j.error || 'Odeslání selhalo.', false);
         }
-      }).catch(function () {
+      }).catch(function (err) {
         sendBtn.disabled = false; sendBtn.innerHTML = orig;
-        showMsg(sendMsg, 'Síťová chyba při odesílání.', false);
+        showMsg(sendMsg, (err && err.message) ? err.message : 'Síťová chyba při odesílání.', false);
       });
     });
   }
@@ -236,7 +293,7 @@
       post('add_recipient', { email: fd.get('email'), name: fd.get('name') }).then(function (j) {
         if (j.ok) { addRecipientForm.reset(); render(j.recipients); }
         else { showMsg(addMsg, j.error || 'Chyba.', false); }
-      });
+      }).catch(function (err) { showMsg(addMsg, (err && err.message) || 'Chyba.', false); });
     });
   }
 
@@ -255,6 +312,9 @@
       post('save_settings', fields).then(function (j) {
         btn.disabled = false;
         showMsg(msg, j.ok ? 'Nastavení uloženo.' : (j.error || 'Chyba.'), !!j.ok);
+      }).catch(function (err) {
+        btn.disabled = false;
+        showMsg(msg, (err && err.message) || 'Chyba.', false);
       });
     });
   }

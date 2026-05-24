@@ -10,6 +10,19 @@ declare(strict_types=1);
 
 require __DIR__ . '/lib/bootstrap.php';
 
+// A POST whose body exceeded post_max_size arrives with empty $_POST/$_FILES
+// even though Content-Length is large. Catch it so the client gets clear JSON
+// instead of an unexpected HTML page.
+if ($_SERVER['REQUEST_METHOD'] === 'POST'
+    && empty($_POST) && empty($_FILES)
+    && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+    json_out([
+        'ok'    => false,
+        'error' => 'Data požadavku byla příliš velká pro limity serveru (post_max_size / upload_max_filesize). '
+                 . 'Fotky se sice zmenšují, ale zkus jich přiložit méně najednou, nebo navyš limity v PHP.',
+    ], 413);
+}
+
 $action = $_POST['action'] ?? '';
 $page   = $_GET['page'] ?? 'compose';
 
