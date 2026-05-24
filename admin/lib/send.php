@@ -124,8 +124,7 @@ function pb_build_email_html(string $bodyText, array $inlineCids): string
         . ($images !== '' ? '<div style="margin-top:8px;">' . $images . '</div>' : '')
         . '</div>'
         . '<p style="text-align:center;color:#9aa0a6;font-size:12px;line-height:1.6;margin:18px auto 4px;max-width:460px;">'
-        . '🤖 Tenhle e-mail ti posílá robot, takže odpovídat nemá smysl — stěžoval by si do prázdna. '
-        . 'Kdybys cokoliv potřeboval/a, ozvi se nám klasicky. 🙂</p>'
+        . 'Tenhle e-mail se posílá automaticky, není třeba odpovídat. 🙂</p>'
         . '<p style="text-align:center;color:#c2c7cd;font-size:11px;margin:4px 0 0;">Prague Boats — Media Hub</p>'
         . '</div></body></html>';
 }
