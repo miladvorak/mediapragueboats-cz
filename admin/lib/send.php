@@ -69,7 +69,7 @@ function pb_handle_send(): void
     }
 
     // ---- Build HTML body ---------------------------------------------------
-    $html = pb_build_email_html($bodyText, $inlineCids);
+    $html = pb_build_email_html($bodyText, $inlineCids, $boat);
 
     $fromName = $settings['from_name'] !== '' ? $settings['from_name'] : 'Prague Boats Media';
     $from = sprintf('%s <%s>', $fromName, $settings['from_email']);
@@ -99,7 +99,7 @@ function pb_handle_send(): void
 }
 
 /** Turn the plain-text body into a simple, email-client-safe HTML document. */
-function pb_build_email_html(string $bodyText, array $inlineCids): string
+function pb_build_email_html(string $bodyText, array $inlineCids, string $boat = ''): string
 {
     // Escape, linkify URLs, keep line breaks.
     $escaped = htmlspecialchars($bodyText, ENT_QUOTES, 'UTF-8');
@@ -108,6 +108,13 @@ function pb_build_email_html(string $bodyText, array $inlineCids): string
         static fn($m) => '<a href="' . $m[1] . '" style="color:#1a5fb4;">' . $m[1] . '</a>',
         $escaped
     );
+
+    // Bold the boat name wherever it appears in the body.
+    $boatEsc = htmlspecialchars(trim($boat), ENT_QUOTES, 'UTF-8');
+    if ($boatEsc !== '') {
+        $linked = str_replace($boatEsc, '<strong>' . $boatEsc . '</strong>', $linked);
+    }
+
     $bodyHtml = nl2br($linked);
 
     $images = '';
