@@ -101,21 +101,48 @@ function pb_handle_send(): void
 /** Turn the plain-text body into a simple, email-client-safe HTML document. */
 function pb_build_email_html(string $bodyText, array $inlineCids, string $boat = ''): string
 {
-    // Escape, linkify URLs, keep line breaks.
-    $escaped = htmlspecialchars($bodyText, ENT_QUOTES, 'UTF-8');
-    $linked  = preg_replace_callback(
-        '~(https?://[^\s<]+)~u',
-        static fn($m) => '<a href="' . $m[1] . '" style="color:#1a5fb4;">' . $m[1] . '</a>',
-        $escaped
-    );
-
-    // Bold the boat name wherever it appears in the body.
     $boatEsc = htmlspecialchars(trim($boat), ENT_QUOTES, 'UTF-8');
-    if ($boatEsc !== '') {
-        $linked = str_replace($boatEsc, '<strong>' . $boatEsc . '</strong>', $linked);
+    $boldBoat = static function (string $html) use ($boatEsc): string {
+        return $boatEsc !== '' ? str_replace($boatEsc, '<strong>' . $boatEsc . '</strong>', $html) : $html;
+    };
+
+    // Render line by line so "Popisek: https://…" lines become a bold label
+    // with a tidy button instead of an ugly wrapping URL.
+    $lines = preg_split('/\r\n|\r|\n/', $bodyText) ?: [];
+    $parts = [];
+    foreach ($lines as $line) {
+        $trim = trim($line);
+        if ($trim === '') {
+            $parts[] = '<div style="height:12px;line-height:12px;font-size:0;">&nbsp;</div>';
+            continue;
+        }
+
+        if (preg_match('~^(.*\S)\s*:\s*(https?://\S+)$~u', $trim, $m)) {
+            $label   = $boldBoat(htmlspecialchars($m[1], ENT_QUOTES, 'UTF-8'));
+            $urlAttr = htmlspecialchars($m[2], ENT_QUOTES, 'UTF-8');
+            $isDropbox = stripos($m[2], 'dropbox.') !== false;
+            $btnLabel = $isDropbox ? '📁&nbsp;&nbsp;Otevřít složku' : '↗&nbsp;&nbsp;Otevřít odkaz';
+            $parts[] =
+                '<div style="margin:16px 0;">'
+                . '<div style="font-weight:700;color:#1f2733;font-size:14px;margin-bottom:8px;">' . $label . '</div>'
+                . '<a href="' . $urlAttr . '" style="display:inline-block;background:#1a5fb4;color:#ffffff;'
+                . 'text-decoration:none;padding:11px 20px;border-radius:9px;font-weight:600;font-size:14px;'
+                . 'font-family:Arial,Helvetica,sans-serif;">' . $btnLabel . '</a>'
+                . '</div>';
+            continue;
+        }
+
+        // Plain text line: escape, linkify stray URLs, bold the boat name.
+        $esc = htmlspecialchars($trim, ENT_QUOTES, 'UTF-8');
+        $esc = preg_replace_callback(
+            '~(https?://[^\s<]+)~u',
+            static fn($x) => '<a href="' . $x[1] . '" style="color:#1a5fb4;">' . $x[1] . '</a>',
+            $esc
+        );
+        $parts[] = '<div style="margin:0 0 4px;">' . $boldBoat($esc) . '</div>';
     }
 
-    $bodyHtml = nl2br($linked);
+    $bodyHtml = implode("\n", $parts);
 
     $images = '';
     foreach ($inlineCids as $cid => $filename) {
