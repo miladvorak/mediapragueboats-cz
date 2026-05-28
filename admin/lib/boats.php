@@ -71,6 +71,50 @@ function pb_parse_boats(string $htmlPath = PB_INDEX_HTML): array
         }
     }
 
+    // 3) News items — each headline becomes its own selectable folder.
+    $newsFolders = [];
+    $newsItems = $xp->query('//div[contains(concat(" ", normalize-space(@class), " "), " news-item ")]');
+    $seen = [];
+    foreach ($newsItems as $item) {
+        /** @var DOMElement $item */
+        $titleNode = $xp->query('.//h4[contains(@class,"news-title")]', $item)->item(0);
+        $linkNode  = $xp->query('.//a[contains(@class,"news-link") and starts-with(@href,"http")]', $item)->item(0);
+        if (!$titleNode || !$linkNode) continue;
+        $title = trim($titleNode->textContent);
+        $url   = trim($linkNode->getAttribute('href'));
+        if ($url === '' || isset($seen[$url])) continue; // dedupe (preview vs full list)
+        $seen[$url] = true;
+        $newsFolders[] = ['title' => $title, 'anchor' => 'news', 'links' => [['label' => 'Otevřít v Dropboxu', 'url' => $url]]];
+    }
+    if ($newsFolders) {
+        $entries[] = ['id' => 'news', 'boat' => 'Novinky', 'anchor' => 'news', 'folders' => $newsFolders];
+    }
+
+    // 4) Archive items — each event becomes its own folder (with all its links).
+    // Scoped to #block-archive so video-items (same class) don't sneak in.
+    $eventFolders = [];
+    $events = $xp->query('//section[@id="block-archive"]//div[contains(concat(" ", normalize-space(@class), " "), " event-item ")]');
+    foreach ($events as $item) {
+        /** @var DOMElement $item */
+        $titleNode = $xp->query('.//h4[contains(@class,"event-title")]', $item)->item(0);
+        $title = $titleNode ? trim($titleNode->textContent) : '';
+        $links = [];
+        $linkNodes = $xp->query('.//a[contains(@class,"link-text") and starts-with(@href,"http")]', $item);
+        foreach ($linkNodes as $a) {
+            /** @var DOMElement $a */
+            $url = trim($a->getAttribute('href'));
+            if ($url === '') continue;
+            $label = trim($a->textContent);
+            $links[] = ['label' => $label !== '' ? $label : 'Odkaz', 'url' => $url];
+        }
+        if ($title !== '' && $links) {
+            $eventFolders[] = ['title' => $title, 'anchor' => 'archive', 'links' => $links];
+        }
+    }
+    if ($eventFolders) {
+        $entries[] = ['id' => 'block-archive', 'boat' => 'Archiv', 'anchor' => 'block-archive', 'folders' => $eventFolders];
+    }
+
     usort($entries, static fn($a, $b) => strcoll($a['boat'], $b['boat']));
     return $entries;
 }
